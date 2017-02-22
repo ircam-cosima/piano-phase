@@ -5,7 +5,6 @@ class ControllerExperience extends BasicSharedController {
     super(options);
 
     this.auth = this.require('auth');
-    this.metricScheduler = this.require('metric-scheduler');
   }
 }
 

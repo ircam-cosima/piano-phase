@@ -31,7 +31,7 @@ export default {
   },
 
   // content of the `loader` service
-  'service:loader': {
+  'service:audio-buffer-manager': {
     loading: 'Loading sounds…',
   },
 

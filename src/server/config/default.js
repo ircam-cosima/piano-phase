@@ -15,7 +15,10 @@ export default {
   // name of the environnement ('production' enable cache in express application)
   env: 'development',
 
-  someArray: [0, 1, 2],
+  application: {
+    splitPiano: false,
+    logMetric: false,
+  },
   // version of application, can be used to force reload css and js files
   // from server (cf. `html/default.ejs`)
   version: '0.0.1',

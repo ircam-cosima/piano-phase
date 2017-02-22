@@ -60,7 +60,7 @@ export default {
   `,
 
   // template of the `loader` service
-  'service:loader': `
+  'service:audio-buffer-manager': `
     <div class="section-top flex-middle">
       <p><%= loading %></p>
     </div>

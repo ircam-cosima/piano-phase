@@ -4,6 +4,8 @@ import PlayerExperience from './PlayerExperience.js';
 import viewTemplates from '../shared/viewTemplates';
 import viewContent from '../shared/viewContent';
 
+import Master from '../shared/services/Master';
+
 // launch application when document is fully loaded
 window.addEventListener('load', () => {
   // initialize the client with configuration received
