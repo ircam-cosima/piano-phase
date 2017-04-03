@@ -16,7 +16,7 @@ export default {
   env: 'development',
 
   application: {
-    splitPiano: false,
+    splitPiano: true, // is false each client plays all the pattern
     logMetric: false,
   },
   // version of application, can be used to force reload css and js files

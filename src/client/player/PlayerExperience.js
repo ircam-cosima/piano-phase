@@ -5,12 +5,17 @@ import PatternPlayer from './PatternPlayer';
 import PatternMetro from './PatternMetro';
 
 const audioContext = soundworks.audioContext;
+const client = soundworks.client;
 
 const viewTemplate = `
   <canvas class="background"></canvas>
   <div class="foreground">
     <div class="section-top flex-middle"></div>
-    <div class="section-center flex-center"></div>
+    <div class="section-center flex-center">
+    <% if (sorry === true) { %>
+      <p>Sorry you cannot enter the application</p>
+    <% } %>
+    </div>
     <div class="section-bottom flex-middle"></div>
   </div>
 `;
@@ -38,7 +43,7 @@ class PlayerExperience extends soundworks.Experience {
   constructor(assetsDomain) {
     super();
 
-    this.platform = this.require('platform', { features: ['web-audio'] });
+    this.platform = this.require('platform', { features: ['web-audio', 'wake-lock'] });
     this.checkin = this.require('checkin', { showDialog: false });
 
     this.audioBufferManager = this.require('audio-buffer-manager', {
@@ -65,10 +70,60 @@ class PlayerExperience extends soundworks.Experience {
   init() {
     // initialize the view
     this.viewTemplate = viewTemplate;
-    this.viewContent = {};
+    this.viewContent = { sorry: this.isAndroid };
     this.viewCtor = soundworks.CanvasView;
     this.viewOptions = { preservePixelRatio: true };
     this.view = this.createView();
+  }
+
+  start() {
+    super.start();
+
+    this.isAndroid = (client.platform.os === 'android');
+
+    if (!this.hasStarted)
+      this.init();
+
+    this.show();
+
+    if (this.isAndroid)
+      return;
+
+    // define if pianoIndex 1 or pianoIndex 2
+    const appConfig = this.sharedConfig.get('application');
+    const clientIndex = soundworks.client.index;
+    this.pianoIndex = clientIndex % 2;
+    this.patternIndex = Math.floor((clientIndex % 10) / 2);
+
+    // initialize rendering
+    const output = this.master.getDestination();
+
+    this.renderer = new SampleRenderer();
+    this.patternPlayers = this.audioBufferManager.data.map((conf, index) => {
+      const sampleSynth = new SampleSynth(conf.audio);
+      sampleSynth.connect(output);
+
+      return new PatternPlayer(conf.pattern, this.metricScheduler, this.renderer, sampleSynth);
+    }).filter((patternPlayer, index) => {
+      return appConfig.splitPiano ? index === this.patternIndex : true;
+    });
+
+    this.view.addRenderer(this.renderer);
+
+    this.view.setPreRender(function(ctx, dt, canvasWidth, canvasHeight) {
+      ctx.save();
+      ctx.globalAlpha = 0.2;
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      ctx.restore();
+    });
+
+    if (appConfig.logMetric)
+      this._logMetric();
+
+    this.receive('current-cue', this.onCurrentCueResponse);
+    this.receive('next-cue', this.onNextCueResponse);
+    this.requestCurrentCue();
   }
 
   requestCurrentCue() {
@@ -108,51 +163,6 @@ class PlayerExperience extends soundworks.Experience {
 
     const patternMetro = new PatternMetro(this.patternPlayers, patternOffset, nbrBeats);
     this.metricScheduler.addMetronome(patternMetro.metroFunction, 12, 16, tempoScale, startMetricPosition);
-  }
-
-  start() {
-    super.start();
-
-    if (!this.hasStarted)
-      this.init();
-
-    this.show();
-
-    // define if pianoIndex 1 or pianoIndex 2
-    const appConfig = this.sharedConfig.get('application');
-    const clientIndex = soundworks.client.index;
-    this.pianoIndex = clientIndex % 2;
-    this.patternIndex = Math.floor((clientIndex % 10) / 2);
-
-    // initialize rendering
-    const output = this.master.getDestination();
-
-    this.renderer = new SampleRenderer();
-    this.patternPlayers = this.audioBufferManager.data.map((conf, index) => {
-      const sampleSynth = new SampleSynth(conf.audio);
-      sampleSynth.connect(output);
-
-      return new PatternPlayer(conf.pattern, this.metricScheduler, this.renderer, sampleSynth);
-    }).filter((patternPlayer, index) => {
-      return appConfig.splitPiano ? index === this.patternIndex : true;
-    });
-
-    this.view.addRenderer(this.renderer);
-
-    this.view.setPreRender(function(ctx, dt, canvasWidth, canvasHeight) {
-      ctx.save();
-      ctx.globalAlpha = 0.2;
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-      ctx.restore();
-    });
-
-    if (appConfig.logMetric)
-      this._logMetric();
-
-    this.receive('current-cue', this.onCurrentCueResponse);
-    this.receive('next-cue', this.onNextCueResponse);
-    this.requestCurrentCue();
   }
 
   _logMetric() {
