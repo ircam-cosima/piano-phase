@@ -1,6 +1,6 @@
-import { Renderer } from 'soundworks/client';
+import { Canvas2dRenderer } from 'soundworks/client';
 
-class SampleRenderer extends Renderer {
+class SampleRenderer extends Canvas2dRenderer {
   constructor() {
     super();
 

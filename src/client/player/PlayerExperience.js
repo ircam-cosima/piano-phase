@@ -7,7 +7,7 @@ import PatternMetro from './PatternMetro';
 const audioContext = soundworks.audioContext;
 const client = soundworks.client;
 
-const viewTemplate = `
+const template = `
   <canvas class="background"></canvas>
   <div class="foreground">
     <div class="section-top flex-middle"></div>
@@ -67,22 +67,14 @@ class PlayerExperience extends soundworks.Experience {
     this.onCurrentCueResponse = this.onCurrentCueResponse.bind(this);
   }
 
-  init() {
-    // initialize the view
-    this.viewTemplate = viewTemplate;
-    this.viewContent = { sorry: this.isAndroid };
-    this.viewCtor = soundworks.CanvasView;
-    this.viewOptions = { preservePixelRatio: true };
-    this.view = this.createView();
-  }
-
   start() {
     super.start();
 
     this.isAndroid = (client.platform.os === 'android');
 
-    if (!this.hasStarted)
-      this.init();
+    this.view = new soundworks.CanvasView(template, { sorry: this.isAndroid }, {}, {
+      preservePixelRatio: true,
+    });
 
     this.show();
 

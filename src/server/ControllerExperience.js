@@ -1,6 +1,6 @@
-import { BasicSharedController } from 'soundworks/server';
+import * as soundworks from 'soundworks/server';
 
-class ControllerExperience extends BasicSharedController {
+class ControllerExperience extends soundworks.ControllerExperience {
   constructor() {
     super('controller');
 
