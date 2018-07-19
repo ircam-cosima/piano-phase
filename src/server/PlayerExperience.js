@@ -94,10 +94,9 @@ class Score {
   }
 }
 
-// server-side 'player' experience.
-export default class PlayerExperience extends Experience {
-  constructor() {
-    super('player');
+class PlayerExperience extends Experience {
+  constructor(clientType) {
+    super(clientType);
 
     this.checkin = this.require('checkin');
     this.sharedParams = this.require('shared-params');
@@ -137,19 +136,18 @@ export default class PlayerExperience extends Experience {
 
   enter(client) {
     super.enter(client);
+
     this.sharedParams.update('numPlayers', this.clients.length);
 
     this.receive(client, 'current-cue-request', () => {
       const metricPosition = this.metricScheduler.metricPosition;
       const currentCue = this.score.getCueAtMetricPosition(metricPosition);
-      // console.log('metricPosition', metricPosition, 'current-cue', currentCue);
 
       this.send(client, 'current-cue', currentCue);
     });
 
     this.receive(client, 'next-cue-request', (currentCueIndex) => {
       const nextCue = this.score.getNextCue(currentCueIndex);
-      // console.log('next-cue', nextCue);
 
       this.send(client, 'next-cue', nextCue);
     });
@@ -184,3 +182,5 @@ export default class PlayerExperience extends Experience {
     this.broadcast('player', null, 'current-cue', firstCue);
   }
 }
+
+export default PlayerExperience;

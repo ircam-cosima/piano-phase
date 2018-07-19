@@ -4,10 +4,10 @@ import ControllerExperience from './ControllerExperience';
 import serviceViews from '../shared/serviceViews';
 
 function bootstrap() {
-  // initialize the client with configuration received
-  // from the server through the `index.html`
-  // @see {~/src/server/index.js}
-  // @see {~/html/default.ejs}
+
+  document.body.classList.remove('loading');
+
+
   const config = Object.assign({ appContainer: '#container' }, window.soundworksConfig);
   soundworks.client.init(config.clientType, config);
 
@@ -16,8 +16,7 @@ function bootstrap() {
       instance.view = serviceViews.get(id, config);
   });
 
-  const controller = new ControllerExperience();
-
+  const controller = new ControllerExperience(config.assetsDomain);
   soundworks.client.start();
 }
 

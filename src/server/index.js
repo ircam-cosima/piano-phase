@@ -37,7 +37,7 @@ const sharedParams = soundworks.server.require('shared-params');
 sharedParams.addText('numPlayers', 'num players', 0, ['controller']);
 sharedParams.addEnum('control', 'control', ['start', 'pause', 'stop'], 'stop');
 
-const player = new PlayerExperience();
-const controller = new ControllerExperience();
+const player = new PlayerExperience('player');
+const controller = new ControllerExperience('controller');
 
 soundworks.server.start();
