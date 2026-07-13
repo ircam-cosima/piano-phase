@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fse = require('fs-extra');
 const path = require('path');
-const sass = require('node-sass');
+const sass = require('sass');
 
 /**
  * Find all files recursively in `srcDirectory` that pass the allowed function
